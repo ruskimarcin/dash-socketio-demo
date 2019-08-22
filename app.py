@@ -1,20 +1,18 @@
 import time
 
 import dash
-from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
-import dash_core_components as dcc
 import dash_html_components as html
-from flask import Flask, render_template
 from flask_socketio import SocketIO
 
 
-css = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-server = app = Flask(__name__)
+app = dash.Dash(__name__)
+server = app.server
 server.config['SECRET_KEY'] = 'secret!'
-app = dash.Dash(__name__, server=server, external_stylesheets=css)
 socketio = SocketIO(server)
+
+@socketio.on('welcome')
+def handle_message(message):
+    print(str(message))
 
 app.index_string = '''
 <!DOCTYPE html>
@@ -30,7 +28,7 @@ app.index_string = '''
             var socket = io();
             
             socket.on('connect', function() {
-                socket.emit('hello', {data: 'connected'});
+                socket.emit('welcome', {data: 'connected'});
             });
 
             socket.on('update', function(data) {
@@ -57,18 +55,13 @@ app.layout = html.Div([
 ])
 
 
-@socketio.on('hello')
-def handle_message(message):
-    print(str(message))
-
-
 @app.callback(
-    Output('finish', 'children'),
-    [Input('trigger', 'n_clicks')])
+    dash.dependencies.Output('finish', 'children'),
+    [dash.dependencies.Input('trigger', 'n_clicks')])
 def countdown(click):
     
     if not click:
-        raise PreventUpdate() 
+        raise dash.exceptions.PreventUpdate()
     
     for i in range(10):
         socketio.emit('update', i)
@@ -77,5 +70,4 @@ def countdown(click):
     return click
 
 if __name__ == '__main__':
-    socketio.run(server)
-    # app.run_server(debug=True)
+    app.run_server(debug=True)
