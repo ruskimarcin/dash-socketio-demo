@@ -9,16 +9,11 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-external_scripts = [{
-    'src':'https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js',
-    'integrity':'sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=',
-    'crossorigin': 'anonymous'
-}]
+css = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
 server = app = Flask(__name__)
 server.config['SECRET_KEY'] = 'secret!'
-app = dash.Dash(__name__, server=server,
-                external_stylesheets=external_stylesheets, external_scripts=external_scripts)
+app = dash.Dash(__name__, server=server, external_stylesheets=css)
 socketio = SocketIO(server)
 
 app.index_string = '''
